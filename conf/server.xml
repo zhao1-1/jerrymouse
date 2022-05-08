@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Server>
+    <Service name="Catalina">
+        <Connector port="8848"/>
+        <Connector port="18081"/>
+        <Connector port="18082"/>
+        <Engine defaultHost = "localhost">
+            <Host name = "localhost">
+                <Context path="/b2b" docBase="/Users/zhaobin/pdd/code/jerrymouse/b" />
+                <Context path="/demo" docBase="/Users/zhaobin/pdd/code/demoweb/web" />
+            </Host>
+            <!--
+            <Host name = "x">
+            </Host>
+            -->
+        </Engine>
+    </Service>
+</Server>
