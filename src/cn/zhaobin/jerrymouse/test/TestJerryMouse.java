@@ -12,6 +12,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -43,8 +45,8 @@ public class TestJerryMouse {
     @Test
     public void testMiniBrowser() {
         String url = "http://static.how2j.cn/diytomcat.html";
-        String htmlContent = MiniBrowser.getContentString(url, false, "\r\n\r\n");
-        Assert.assertEquals(htmlContent, "hello diytomcat");
+        String htmlContent = MiniBrowser.getHttpString(url);
+        containAssert(htmlContent, "hello diytomcat");
     }
 
     @Test
@@ -186,9 +188,32 @@ public class TestJerryMouse {
         Assert.assertEquals(html1, html2);
     }
 
-    private String getContentStringViaMiniBrowser(String uri) {
-        return MiniBrowser.getContentString(getTestURL(uri));
+    @Test
+    public void testGetParam() {
+        Map<String,Object> params = new HashMap<>();
+        params.put("name","LuBan");
+        String html = getContentStringViaMiniBrowser("/demo/param", params, true);
+        Assert.assertEquals(html,"get name:LuBan");
     }
+
+    @Test
+    public void testPostParam() {
+        Map<String,Object> params = new HashMap<>();
+        params.put("name","YaSe");
+        String html = getContentStringViaMiniBrowser("/demo/param", params, false);
+        Assert.assertEquals(html,"post name:YaSe");
+    }
+
+    @Test
+    public void testHeader() {
+        String html = getContentStringViaMiniBrowser("/demo/header");
+        Assert.assertEquals(html, "ZhaoBin mini Browser / java1.8");
+    }
+
+
+    private String getContentStringViaMiniBrowser(String uri) { return MiniBrowser.getContentString(getTestURL(uri)); }
+
+    private String getContentStringViaMiniBrowser(String uri, Map params, boolean isGet) { return MiniBrowser.getContentString(getTestURL(uri), params, isGet); }
 
     private String getHttpStringViaMiniBrowser(String uri) { return MiniBrowser.getHttpString(getTestURL(uri)); }
 
@@ -196,8 +221,6 @@ public class TestJerryMouse {
 
     private String getTestURL(String uri) { return StrUtil.format("http://{}:{}{}", ip,port,uri); }
 
-    private void containAssert(String html, String keyword) {
-        Assert.assertTrue(StrUtil.containsAny(html, keyword));
-    }
+    private void containAssert(String html, String keyword) { Assert.assertTrue(StrUtil.containsAny(html, keyword)); }
 
 }

@@ -1,102 +1,70 @@
 package cn.zhaobin.jerrymouse.test;
 
-import cn.zhaobin.jerrymouse.util.CommonUtils;
-
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import cn.hutool.http.HttpUtil;
+import cn.zhaobin.jerrymouse.util.CommonUtils;
+
 public class MiniBrowser {
 
-    /**
-     * @return 返回二进制的 http 响应
-     */
-    public static byte[] getHttpBytes(String url, boolean gzip) {
-        byte[] result;
+    public static final String SYSTEM_DOUBLE_RETURN = "\n\n";
+
+    public static void main(String[] args) throws Exception {
+        String url = "http://static.how2j.cn/diytomcat.html";
+        String contentString= getContentString(url,false);
+        System.out.println(contentString);
+        String httpString= getHttpString(url,false);
+        System.out.println(httpString);
+    }
+
+    public static byte[] getContentBytes(String url, Map<String,Object> params, boolean isGet) {
+        return getContentBytes(url, false,params,isGet);
+    }
+
+    public static byte[] getContentBytes(String url, boolean gzip) {
+        return getContentBytes(url, gzip,null,true);
+    }
+
+    public static byte[] getContentBytes(String url) {
+        return getContentBytes(url, false,null,true);
+    }
+
+    public static String getContentString(String url, Map<String,Object> params, boolean isGet) {
+        return getContentString(url,false,params,isGet);
+    }
+
+    public static String getContentString(String url, boolean gzip) {
+        return getContentString(url, gzip, null, true);
+    }
+
+    public static String getContentString(String url) {
+        return getContentString(url, false, null, true);
+    }
+
+    public static String getContentString(String url, boolean gzip, Map<String,Object> params, boolean isGet) {
+        byte[] result = getContentBytes(url, gzip,params,isGet);
+        if(null==result)
+            return null;
         try {
-            // 1. 连接指定url的socket
-            URL u = new URL(url);
-            Socket client = new Socket();
-            int port = u.getPort();
-            if(-1==port)
-                port = 80;
-            InetSocketAddress inetSocketAddress = new InetSocketAddress(u.getHost(), port);
-            client.connect(inetSocketAddress, 1000);
-
-            // 2.1(1) 组装请求行
-            String path = u.getPath();
-            if(path.length()==0)
-                path = "/";
-            String firstLine = "GET " + path + " HTTP/1.1\n";
-
-            // 2.1(2) 组装请求头
-            Map<String,String> requestHeaders = new HashMap<>();
-            requestHeaders.put("Host", u.getHost()+":"+port);
-            requestHeaders.put("Accept", "text/html");
-            requestHeaders.put("Connection", "close");
-            requestHeaders.put("User-Agent", "ZhaoBin mini Browser / java1.8");
-            if(gzip)
-                requestHeaders.put("Accept-Encoding", "gzip");
-
-            // 2.2(1) 生成sb
-            StringBuffer httpRequestString = new StringBuffer();
-
-            // 2.2(2) 请求行封进sb
-            httpRequestString.append(firstLine);
-
-            // 2.2(3) 请求头封进sb
-            Set<String> headers = requestHeaders.keySet();
-            for (String header : headers) {
-                String headerLine = header + ":" + requestHeaders.get(header)+"\n";
-                httpRequestString.append(headerLine);
-            }
-
-            // 2.3 将封装了请求行 + 请求头的sb发送给服务器
-            PrintWriter pWriter = new PrintWriter(client.getOutputStream(), true);
-            pWriter.println(httpRequestString);
-
-
-            // 3. 获得服务器给返回的response体
-            InputStream is = client.getInputStream();
-            result = CommonUtils.readBytes(is, true);
-            client.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            result = e.toString().getBytes(StandardCharsets.UTF_8);
+            return new String(result,"utf-8").trim();
+        } catch (UnsupportedEncodingException e) {
+            return null;
         }
-
-        return result;
-
     }
 
-    /**
-     * @return 返回字符串的 http 响应
-     */
-    public static String getHttpString(String url, boolean gzip) {
-        byte[] result = getHttpBytes(url,gzip);
-        return CommonUtils.byte2String(result, "utf-8");
-    }
-
-    public static String getHttpString(String url) { return getHttpString(url,false); }
-
-
-
-    /**
-     * @param gzip 是否获取压缩后的数据
-     * @return 返回二进制的 http 响应内容 （可简单理解为去掉头的 html 部分）
-     */
-    public static byte[] getContentBytes(String url, boolean gzip, String lineBreak) {
-        byte[] response = getHttpBytes(url,gzip);
-        byte[] doubleReturn = lineBreak.getBytes();
+    public static byte[] getContentBytes(String url, boolean gzip, Map<String,Object> params, boolean isGet) {
+        byte[] response = getHttpBytes(url,gzip,params,isGet);
+        byte[] doubleReturn = "\n\n".getBytes();
 
         int pos = -1;
-        for (int i = 0; i < response.length - doubleReturn.length; i++) {
+        for (int i = 0; i < response.length-doubleReturn.length; i++) {
             byte[] temp = Arrays.copyOfRange(response, i, i + doubleReturn.length);
 
             if(Arrays.equals(temp, doubleReturn)) {
@@ -109,20 +77,89 @@ public class MiniBrowser {
 
         pos += doubleReturn.length;
 
-        return Arrays.copyOfRange(response, pos, response.length);
+        byte[] result = Arrays.copyOfRange(response, pos, response.length);
+        return result;
     }
 
-    /**
-     * @param gzip 是否获取压缩后的数据
-     * @return 返回字符串的 http 响应内容 （可简单理解为去掉头的 html 部分）
-     */
-    public static String getContentString(String url, boolean gzip, String lineBreak) {
-        byte[] result = getContentBytes(url, gzip, lineBreak);
-        return CommonUtils.byte2String(result, "utf-8");
+    public static String getHttpString(String url,boolean gzip) {
+        return getHttpString(url, gzip, null, true);
     }
 
-    public static String getContentString(String url) { return getContentString(url, false, "\n\n"); }
+    public static String getHttpString(String url) {
+        return getHttpString(url, false, null, true);
+    }
 
-    public static byte[] getContentBytes(String url) { return getContentBytes(url, false, "\n\n"); }
+    public static String getHttpString(String url,boolean gzip, Map<String,Object> params, boolean isGet) {
+        byte[]  bytes=getHttpBytes(url,gzip,params,isGet);
+        return new String(bytes).trim();
+    }
 
+    public static String getHttpString(String url, Map<String,Object> params, boolean isGet) {
+        return getHttpString(url,false,params,isGet);
+    }
+
+    public static byte[] getHttpBytes(String url,boolean gzip, Map<String,Object> params, boolean isGet) {
+        String method = isGet?"GET":"POST";
+        byte[] result = null;
+        try {
+            URL u = new URL(url);
+            Socket client = new Socket();
+            int port = u.getPort();
+            if(-1==port)
+                port = 80;
+            InetSocketAddress inetSocketAddress = new InetSocketAddress(u.getHost(), port);
+            client.connect(inetSocketAddress, 1000);
+            Map<String,String> requestHeaders = new HashMap<>();
+
+            requestHeaders.put("Host", u.getHost()+":"+port);
+            requestHeaders.put("Accept", "text/html");
+            requestHeaders.put("Connection", "close");
+            requestHeaders.put("User-Agent", "ZhaoBin mini Browser / java1.8");
+
+            if(gzip)
+                requestHeaders.put("Accept-Encoding", "gzip");
+
+            String path = u.getPath();
+            if(path.length()==0)
+                path = "/";
+
+            if(null!=params && isGet){
+                String paramsString = HttpUtil.toParams(params);
+                path = path + "?" + paramsString;
+            }
+
+            String firstLine = method + " " + path + " HTTP/1.1\n";
+
+            StringBuffer httpRequestString = new StringBuffer();
+            httpRequestString.append(firstLine);
+            Set<String> headers = requestHeaders.keySet();
+            for (String header : headers) {
+                String headerLine = header + ":" + requestHeaders.get(header)+"\n";
+                httpRequestString.append(headerLine);
+            }
+
+            if(null!=params && !isGet){
+                String paramsString = HttpUtil.toParams(params);
+                httpRequestString.append("\n");
+                httpRequestString.append(paramsString);
+            }
+
+            PrintWriter pWriter = new PrintWriter(client.getOutputStream(), true);
+            pWriter.println(httpRequestString);
+            InputStream is = client.getInputStream();
+
+            result = CommonUtils.readBytes(is,true);
+            client.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                result = e.toString().getBytes("utf-8");
+            } catch (UnsupportedEncodingException e1) {
+                e1.printStackTrace();
+            }
+        }
+
+        return result;
+
+    }
 }
