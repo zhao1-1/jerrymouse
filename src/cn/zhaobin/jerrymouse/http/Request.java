@@ -12,6 +12,7 @@ import cn.zhaobin.jerrymouse.util.CommonUtils;
 import cn.zhaobin.jerrymouse.util.Constant;
 
 import javax.servlet.ServletContext;
+import javax.servlet.http.Cookie;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -31,6 +32,7 @@ public class Request extends BaseRequest {
     private String queryString;
     private Map<String, String> headerMap;
     private Map<String, String[]> parameterMap;
+    private Cookie[] cookies;
 
     public Request(Socket socket, Service service) throws IOException {
         this.socket = socket;
@@ -50,6 +52,7 @@ public class Request extends BaseRequest {
         System.out.println("uri:" + this.uri);
         parseHeaders();
         parseParameters();
+        parseCookies();
     }
 
     private void parseHttpRequest() throws IOException {
@@ -134,6 +137,20 @@ public class Request extends BaseRequest {
         }
     }
 
+    private void parseCookies() {
+        String cookies = headerMap.get("cookie");
+        if (StrUtil.isEmpty(cookies))
+            return;
+        List<Cookie> cookieList = new ArrayList<>();
+        for (String pair : StrUtil.split(cookies, ";")) {
+            if (StrUtil.isBlank(pair))
+                continue;
+            String[] segments = StrUtil.split(pair, "=");
+            cookieList.add(new Cookie(segments[0].trim(), segments[1].trim()));
+        }
+        this.cookies = ArrayUtil.toArray(cookieList, Cookie.class);
+    }
+
     private Host getDefaultHost() {
         return this.service.getEngine().getDefaultHost();
     }
@@ -171,6 +188,9 @@ public class Request extends BaseRequest {
 
     @Override
     public String[] getParameterValues(String name) { return parameterMap.get(name); }
+
+    @Override
+    public Cookie[] getCookies() { return this.cookies; }
 
     @Override
     public String getHeader(String name) {

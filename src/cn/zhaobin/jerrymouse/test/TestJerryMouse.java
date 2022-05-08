@@ -2,6 +2,7 @@ package cn.zhaobin.jerrymouse.test;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.date.TimeInterval;
+import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.NetUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
@@ -12,6 +13,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -220,6 +224,16 @@ public class TestJerryMouse {
     public void testSetCookie() {
         String html = getHttpStringViaMiniBrowser("/demo/setCookie");
         containAssert(html,"Set-Cookie: sessionId=pddXxx123(cookie); Expires=");
+    }
+
+    @Test
+    public void testGetCookie() throws IOException {
+        URL u = new URL(getTestURL("/demo/getCookie"));
+        HttpURLConnection conn = (HttpURLConnection) u.openConnection();
+        conn.setRequestProperty("Cookie","name=Gareen(cookie)");
+        conn.connect();
+        String html = IoUtil.read(conn.getInputStream(), "utf-8");
+        containAssert(html,"name:Gareen(cookie)");
     }
 
 
