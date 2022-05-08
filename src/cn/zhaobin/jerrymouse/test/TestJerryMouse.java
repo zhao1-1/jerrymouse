@@ -210,6 +210,12 @@ public class TestJerryMouse {
         Assert.assertEquals(html, "ZhaoBin mini Browser / java1.8");
     }
 
+    @Test
+    public void testRequestInfo() {
+        String html = getContentStringViaMiniBrowser("/demo/request-info");
+        containAssert(html, "/request-info");
+    }
+
 
     private String getContentStringViaMiniBrowser(String uri) { return MiniBrowser.getContentString(getTestURL(uri)); }
 
