@@ -216,6 +216,12 @@ public class TestJerryMouse {
         containAssert(html, "/request-info");
     }
 
+    @Test
+    public void testSetCookie() {
+        String html = getHttpStringViaMiniBrowser("/demo/setCookie");
+        containAssert(html,"Set-Cookie: sessionId=pddXxx123(cookie); Expires=");
+    }
+
 
     private String getContentStringViaMiniBrowser(String uri) { return MiniBrowser.getContentString(getTestURL(uri)); }
 
