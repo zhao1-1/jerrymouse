@@ -167,10 +167,10 @@ public class Request extends BaseRequest {
 
     public String getUri() { return this.uri; }
 
-    public Context getContext() { return context; }
+    public Context getContext() { return this.context; }
 
     @Override
-    public ServletContext getServletContext() { return context.getServletContext(); }
+    public ServletContext getServletContext() { return this.context.getServletContext(); }
 
     @Override
     public String getRealPath(String path) { return getServletContext().getRealPath(path); }
@@ -184,7 +184,7 @@ public class Request extends BaseRequest {
     }
 
     @Override
-    public Map getParameterMap() { return parameterMap; }
+    public Map getParameterMap() { return this.parameterMap; }
 
     @Override
     public Enumeration getParameterNames() { return Collections.enumeration(parameterMap.keySet()); }
@@ -196,7 +196,7 @@ public class Request extends BaseRequest {
     public Cookie[] getCookies() { return this.cookies; }
 
     @Override
-    public HttpSession getSession() { return session; }
+    public HttpSession getSession() { return this.session; }
 
     public void setSession(HttpSession session) {
         this.session = session;
@@ -265,7 +265,7 @@ public class Request extends BaseRequest {
     public String getContextPath() { return this.context.getPath(); }
 
     @Override
-    public String getRequestURI() { return uri; }
+    public String getRequestURI() { return this.uri; }
 
     @Override
     public StringBuffer getRequestURL() {
@@ -287,6 +287,6 @@ public class Request extends BaseRequest {
     }
 
     @Override
-    public String getServletPath() { return uri; }
+    public String getServletPath() { return this.uri; }
 
 }

@@ -12,12 +12,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public class InvokerServlet extends HttpServlet {
+public class InvokeServlet extends HttpServlet {
 
-    private static final InvokerServlet instance = new InvokerServlet();  // 单例
-    private InvokerServlet() { }
+    private static final InvokeServlet instance = new InvokeServlet();  // 单例
+    private InvokeServlet() { }
 
-    public static InvokerServlet getInstance() { return instance; }
+    public static InvokeServlet getInstance() { return instance; }
 
     @Override
     public void service(HttpServletRequest req, HttpServletResponse resp)

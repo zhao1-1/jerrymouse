@@ -5,7 +5,7 @@ import cn.hutool.log.LogFactory;
 import cn.zhaobin.jerrymouse.http.Request;
 import cn.zhaobin.jerrymouse.http.Response;
 import cn.zhaobin.jerrymouse.servlet.DefaultServlet;
-import cn.zhaobin.jerrymouse.servlet.InvokerServlet;
+import cn.zhaobin.jerrymouse.servlet.InvokeServlet;
 import cn.zhaobin.jerrymouse.util.CommonUtils;
 import cn.zhaobin.jerrymouse.util.Constant;
 import cn.zhaobin.jerrymouse.util.SessionManager;
@@ -40,7 +40,7 @@ public class HttpProcessor {
 
     private void executeServlet() throws Exception{
         if (request.getContext().servletClassValid(request.getUri()))
-            InvokerServlet.getInstance().service(this.request, this.response);
+            InvokeServlet.getInstance().service(this.request, this.response);
         else
             DefaultServlet.getInstance().service(this.request, this.response);
     }
