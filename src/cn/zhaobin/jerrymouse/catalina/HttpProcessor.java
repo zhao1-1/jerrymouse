@@ -8,6 +8,7 @@ import cn.zhaobin.jerrymouse.servlet.DefaultServlet;
 import cn.zhaobin.jerrymouse.servlet.InvokerServlet;
 import cn.zhaobin.jerrymouse.util.CommonUtils;
 import cn.zhaobin.jerrymouse.util.Constant;
+import cn.zhaobin.jerrymouse.util.SessionManager;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -28,6 +29,7 @@ public class HttpProcessor {
 
     public void execute() {
         try {
+            prepareSession(this.request, this.response);
             executeServlet();
             handle();
         } catch (Exception e) {
@@ -41,6 +43,10 @@ public class HttpProcessor {
             InvokerServlet.getInstance().service(this.request, this.response);
         else
             DefaultServlet.getInstance().service(this.request, this.response);
+    }
+
+    public void prepareSession(Request request, Response response) {
+        request.setSession(SessionManager.getSession(request.getJSessionIdFromCookie(), request, response));
     }
 
     private void handle() throws Exception {

@@ -236,6 +236,18 @@ public class TestJerryMouse {
         containAssert(html,"name:Gareen(cookie)");
     }
 
+    @Test
+    public void testSession() throws IOException {
+        String jsessionid = getContentStringViaMiniBrowser("/demo/setSession");
+        if(null != jsessionid)
+            jsessionid = jsessionid.trim();
+        HttpURLConnection conn = (HttpURLConnection) new URL(getTestURL("/demo/getSession")).openConnection();
+        conn.setRequestProperty("Cookie", "JSESSIONID=" + jsessionid);
+        conn.connect();
+        String html = IoUtil.read(conn.getInputStream(), "utf-8");
+        containAssert(html,"ChoPaoPao(session)");
+    }
+
 
     private String getContentStringViaMiniBrowser(String uri) { return MiniBrowser.getContentString(getTestURL(uri)); }
 
