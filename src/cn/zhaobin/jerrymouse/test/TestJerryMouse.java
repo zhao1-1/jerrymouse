@@ -248,6 +248,12 @@ public class TestJerryMouse {
         containAssert(html,"ChoPaoPao(session)");
     }
 
+    @Test
+    public void testClientJump() {
+        String http_servlet = getHttpStringViaMiniBrowser("/demo/clientJump");
+        containAssert(http_servlet, "HTTP/1.1 302 Found\nLocation: /hello");
+    }
+
 
     private String getContentStringViaMiniBrowser(String uri) { return MiniBrowser.getContentString(getTestURL(uri)); }
 

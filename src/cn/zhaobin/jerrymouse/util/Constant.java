@@ -20,6 +20,7 @@ public class Constant {
     public static final int CODE_500 = 500;
 
     public static final String RESPONSE_HEAD_200 = "HTTP/1.1 200 OK" + "{}{}\n\n";
+    public static final String RESPONSE_HEAD_302 = "HTTP/1.1 302 Found\nLocation: {}\n\n";
     public static final String RESPONSE_HEAD_404 = "HTTP/1.1 404 Not Found\n" + "Content-Type: text/html\n\n";
     public static final String RESPONSE_HEAD_500 = "HTTP/1.1 500 Internal Server Error\n" + "Content-Type: text/html\n\n";
 

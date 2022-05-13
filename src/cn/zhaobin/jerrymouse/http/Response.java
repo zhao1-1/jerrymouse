@@ -11,6 +11,7 @@ import cn.zhaobin.jerrymouse.util.parsexml.WebXMLUtils;
 
 import javax.servlet.http.Cookie;
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
@@ -30,6 +31,7 @@ public class Response extends BaseResponse{
     private int status;
 
     private List<Cookie> cookies;
+    private String redirectPath;
 
     public Response(){
         this.stringWriter = new StringWriter();
@@ -52,6 +54,11 @@ public class Response extends BaseResponse{
 
     @Override
     public void addCookie(Cookie cookie) { this.cookies.add(cookie); }
+
+    public String getRedirectPath() { return this.redirectPath; }
+
+    @Override
+    public void sendRedirect(String redirect) throws IOException { this.redirectPath = redirect; }
 
     private List<Cookie> getCookies() { return this.cookies; }
 
@@ -106,6 +113,13 @@ public class Response extends BaseResponse{
 
     @Override
     public int getStatus() { return status; }
+
+    public void servletHandle() {
+        if (null != this.redirectPath)
+            setStatus(Constant.CODE_302);
+        else
+            setStatus(Constant.CODE_200);
+    }
 
     public void handleResourceFile(String realPath) {
         this.sourceFile = FileUtil.file(realPath);

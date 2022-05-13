@@ -33,7 +33,7 @@ public class InvokeServlet extends HttpServlet {
             System.out.println("servletClass:" + servletClass);
             System.out.println("servletClass' classLoader:" + servletClass.getClassLoader());
             ReflectUtil.invoke(context.getSingletonServlet(servletClass), "service", request, response);
-            response.setStatus(Constant.CODE_200);
+            response.servletHandle();
         } catch (Exception e) {
             e.printStackTrace();
         }

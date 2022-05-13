@@ -57,6 +57,9 @@ public class HttpProcessor {
         case Constant.CODE_404:
             handle404();
             break;
+        case 302:
+            handle302();
+            break;
         default:
             throw new RuntimeException("undefined status code!");
         }
@@ -90,6 +93,10 @@ public class HttpProcessor {
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }
+    }
+
+    private void handle302() throws IOException {
+        this.socket.getOutputStream().write(StrUtil.format(Constant.RESPONSE_HEAD_302, this.response.getRedirectPath()).getBytes(StandardCharsets.UTF_8));
     }
 
 }
