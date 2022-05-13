@@ -9,11 +9,14 @@ import cn.zhaobin.jerrymouse.servlet.InvokeServlet;
 import cn.zhaobin.jerrymouse.util.CommonUtils;
 import cn.zhaobin.jerrymouse.util.Constant;
 import cn.zhaobin.jerrymouse.util.SessionManager;
+import cn.zhaobin.jerrymouse.util.StatusCodeEnum;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+
+import static cn.zhaobin.jerrymouse.util.StatusCodeEnum.*;
 
 public class HttpProcessor {
 
@@ -50,18 +53,18 @@ public class HttpProcessor {
     }
 
     private void handle() throws Exception {
-        switch (this.response.getStatus()) {
-        case Constant.CODE_200:
-            handle200();
-            break;
-        case Constant.CODE_404:
-            handle404();
-            break;
-        case 302:
-            handle302();
-            break;
-        default:
-            throw new RuntimeException("undefined status code!");
+        switch (StatusCodeEnum.valueOf(this.response.getStatus())) {
+            case STATUS_CODE_200:
+                handle200();
+                break;
+            case STATUS_CODE_404:
+                handle404();
+                break;
+            case STATUS_CODE_302:
+                handle302();
+                break;
+            default:
+                throw new RuntimeException("undefined status code!");
         }
     }
 
@@ -72,8 +75,8 @@ public class HttpProcessor {
     private void handle404() throws IOException {
         String uri = this.request.getUri();
 
-        byte[] responseHead = Constant.RESPONSE_HEAD_404.getBytes(StandardCharsets.UTF_8);
-        byte[] responseBody = StrUtil.format(Constant.TEXT_FORMAT_404, uri, uri).getBytes(StandardCharsets.UTF_8);
+        byte[] responseHead = STATUS_CODE_404.getHead().getBytes(StandardCharsets.UTF_8);
+        byte[] responseBody = StrUtil.format(STATUS_CODE_404.getContent(), uri, uri).getBytes(StandardCharsets.UTF_8);
 
         OutputStream os = this.socket.getOutputStream();
         os.write(CommonUtils.glue2bytes(responseHead, responseBody));
@@ -81,7 +84,7 @@ public class HttpProcessor {
 
     private void handle500(Throwable e) {
         try {
-            byte[] responseHead = Constant.RESPONSE_HEAD_500.getBytes(StandardCharsets.UTF_8);
+            byte[] responseHead = STATUS_CODE_500.getHead().getBytes(StandardCharsets.UTF_8);
             byte[] responseBody = StrUtil.format(Constant.TEXT_FORMAT_500,
                     CommonUtils.convertExceptionMsg(e),
                     e.toString(),
@@ -96,7 +99,7 @@ public class HttpProcessor {
     }
 
     private void handle302() throws IOException {
-        this.socket.getOutputStream().write(StrUtil.format(Constant.RESPONSE_HEAD_302, this.response.getRedirectPath()).getBytes(StandardCharsets.UTF_8));
+        this.socket.getOutputStream().write(StrUtil.format(STATUS_CODE_302.getHead(), this.response.getRedirectPath()).getBytes(StandardCharsets.UTF_8));
     }
 
 }

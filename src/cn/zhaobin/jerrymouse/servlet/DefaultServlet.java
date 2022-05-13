@@ -14,6 +14,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import static cn.zhaobin.jerrymouse.util.StatusCodeEnum.STATUS_CODE_200;
+
 public class DefaultServlet extends HttpServlet {
 
     private static final DefaultServlet instance = new DefaultServlet();
@@ -38,7 +40,7 @@ public class DefaultServlet extends HttpServlet {
             requestURI = WebXMLUtils.getWelcomeFileName(context);
             if (requestURI.isEmpty()) {
                 response.getWriter().println(Constant.NO_INDEX_WELCOME_CONTENT);
-                response.setStatus(Constant.CODE_200);
+                response.setStatus(STATUS_CODE_200.getCode());
                 return;
             }
         }

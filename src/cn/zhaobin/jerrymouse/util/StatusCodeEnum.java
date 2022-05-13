@@ -1,13 +1,11 @@
 package cn.zhaobin.jerrymouse.util;
 
-import java.io.IOException;
-
 public enum StatusCodeEnum {
 
-    STATUS_CODE_200(200, Constant.RESPONSE_HEAD_200, ""),
-    STATUS_CODE_302(302, "", ""),
-    STATUS_CODE_404(404, Constant.RESPONSE_HEAD_404, Constant.TEXT_FORMAT_404),
-    STATUS_CODE_500(500, Constant.RESPONSE_HEAD_500, Constant.RESPONSE_HEAD_500);
+    STATUS_CODE_200(200, "HTTP/1.1 200 OK{}{}\n\n", ""),
+    STATUS_CODE_302(302, "HTTP/1.1 302 Found\nLocation: {}\n\n", ""),
+    STATUS_CODE_404(404, "HTTP/1.1 404 Not Found\nContent-Type: text/html\n\n", Constant.TEXT_FORMAT_404),
+    STATUS_CODE_500(500, "HTTP/1.1 500 Internal Server Error\nContent-Type: text/html\n\n", Constant.TEXT_FORMAT_500);
 
     private int code;
     private String head;
@@ -19,7 +17,9 @@ public enum StatusCodeEnum {
         this.content = content;
     }
 
+    public int getCode() { return this.code; }
     public String getHead() { return this.head; }
+    public String getContent() { return this.content; }
 
     public static StatusCodeEnum valueOf(int code) throws Exception {
         for (StatusCodeEnum type : StatusCodeEnum.values()) {

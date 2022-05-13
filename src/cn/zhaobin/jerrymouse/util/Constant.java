@@ -14,16 +14,6 @@ public class Constant {
 
     public static final String EMPTY_REQUEST_LINE = "GET / HTTP/1.1";
 
-    public static final int CODE_200 = 200;
-    public static final int CODE_302 = 302;
-    public static final int CODE_404 = 404;
-    public static final int CODE_500 = 500;
-
-    public static final String RESPONSE_HEAD_200 = "HTTP/1.1 200 OK" + "{}{}\n\n";
-    public static final String RESPONSE_HEAD_302 = "HTTP/1.1 302 Found\nLocation: {}\n\n";
-    public static final String RESPONSE_HEAD_404 = "HTTP/1.1 404 Not Found\n" + "Content-Type: text/html\n\n";
-    public static final String RESPONSE_HEAD_500 = "HTTP/1.1 500 Internal Server Error\n" + "Content-Type: text/html\n\n";
-
     public static final String NO_INDEX_WELCOME_CONTENT = "hi, welcome jerryMouse by zhaoBin, and your context don't have index.html";
 
     public static final String TEXT_FORMAT_404 =

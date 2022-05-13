@@ -5,7 +5,6 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.zhaobin.jerrymouse.util.CommonUtils;
-import cn.zhaobin.jerrymouse.util.Constant;
 import cn.zhaobin.jerrymouse.util.StatusCodeEnum;
 import cn.zhaobin.jerrymouse.util.parsexml.WebXMLUtils;
 
@@ -20,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
+import static cn.zhaobin.jerrymouse.util.StatusCodeEnum.*;
 
 public class Response extends BaseResponse{
 
@@ -111,23 +112,31 @@ public class Response extends BaseResponse{
     @Override
     public void setStatus(int status) { this.status = status; }
 
+    private void setStatus(StatusCodeEnum statue) {
+        for (StatusCodeEnum type : StatusCodeEnum.values()) {
+            if (statue.equals(type)) {
+                this.status = type.getCode();
+            }
+        }
+    }
+
     @Override
     public int getStatus() { return status; }
 
     public void servletHandle() {
         if (null != this.redirectPath)
-            setStatus(Constant.CODE_302);
+            setStatus(STATUS_CODE_302);
         else
-            setStatus(Constant.CODE_200);
+            setStatus(STATUS_CODE_200);
     }
 
     public void handleResourceFile(String realPath) {
         this.sourceFile = FileUtil.file(realPath);
         if (this.sourceFile.exists()) {
             assembleResponse();
-            setStatus(Constant.CODE_200);
+            setStatus(STATUS_CODE_200);
         } else {
-            setStatus(Constant.CODE_404);
+            setStatus(STATUS_CODE_404);
         }
     }
 
