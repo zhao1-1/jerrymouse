@@ -31,6 +31,8 @@ public class Request extends BaseRequest {
     private String uri;
     private Context context;
 
+    private Map<String, Object> attributesMap;
+
     private String queryString;
     private Map<String, String> headerMap;
     private Map<String, String[]> parameterMap;
@@ -45,6 +47,7 @@ public class Request extends BaseRequest {
         this.service = service;
         this.headerMap = new HashMap<>();
         this.parameterMap = new HashMap<>();
+        this.attributesMap = new HashMap<>();
         parseHttpRequest();
         if (StrUtil.isEmpty(this.requestString)) this.requestString = Constant.EMPTY_REQUEST_LINE;
         parseMethod();
@@ -299,4 +302,16 @@ public class Request extends BaseRequest {
     public void setForwarded(boolean forwarded) { this.forwarded = forwarded; }
 
     public RequestDispatcher getRequestDispatcher(String uri) { return new ApplicationRequestDispatcher(uri); }
+
+    @Override
+    public void removeAttribute(String name) { attributesMap.remove(name); }
+
+    @Override
+    public void setAttribute(String name, Object value) { attributesMap.put(name, value); }
+
+    @Override
+    public Object getAttribute(String name) { return attributesMap.get(name); }
+
+    @Override
+    public Enumeration<String> getAttributeNames() { return Collections.enumeration(attributesMap.keySet()); }
 }

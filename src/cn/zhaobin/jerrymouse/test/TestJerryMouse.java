@@ -260,6 +260,12 @@ public class TestJerryMouse {
         containAssert(http_servlet, "Hello JerryMouse from HelloServlet@demoWeb");
     }
 
+    @Test
+    public void testJumpWithAttribute() {
+        String html = getContentStringViaMiniBrowser("/demo/serverJump");
+        containAssert(html, "name=cpp-pdd");
+    }
+
 
     private String getContentStringViaMiniBrowser(String uri) { return MiniBrowser.getContentString(getTestURL(uri)); }
 
