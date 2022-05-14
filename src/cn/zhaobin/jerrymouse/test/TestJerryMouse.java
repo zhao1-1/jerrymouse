@@ -266,6 +266,12 @@ public class TestJerryMouse {
         containAssert(html, "name=cpp-pdd");
     }
 
+    @Test
+    public void testWarDeployment() {
+        String html = getContentStringViaMiniBrowser("/demoweb0/hello");
+        containAssert(html,"Hello JerryMouse from HelloServlet@demoWeb");
+    }
+
 
     private String getContentStringViaMiniBrowser(String uri) { return MiniBrowser.getContentString(getTestURL(uri)); }
 
