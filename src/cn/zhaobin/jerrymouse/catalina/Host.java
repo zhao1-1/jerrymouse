@@ -5,6 +5,7 @@ import cn.hutool.core.util.RuntimeUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.zhaobin.jerrymouse.util.Constant;
 import cn.zhaobin.jerrymouse.util.parsexml.ServerXMLUtils;
+import cn.zhaobin.jerrymouse.watcher.WarFileWatcher;
 
 import java.io.File;
 import java.util.HashMap;
@@ -22,6 +23,9 @@ public class Host {
         this.contextMap = new HashMap<>();
         scanWebAppsFolderAndLoadContexts();
         loadContextsFromServerXML();
+
+        // 开启war动态部署监听器
+        new WarFileWatcher(this).start();
     }
 
     public String getName() { return name; }
@@ -88,4 +92,8 @@ public class Host {
     }
 
     public Context getContext(String path) { return this.contextMap.get(path); }
+
+    public void loadWarDynamic(File warFile) {
+        loadContextFromWar(warFile);
+    }
 }
