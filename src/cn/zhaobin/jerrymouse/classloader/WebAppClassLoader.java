@@ -8,8 +8,8 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.List;
 
-public class WebappClassLoader extends URLClassLoader {
-    public WebappClassLoader(String docBase, ClassLoader commonClassLoader) {
+public class WebAppClassLoader extends URLClassLoader {
+    public WebAppClassLoader(String docBase, ClassLoader commonClassLoader) {
         super(new URL[] {}, commonClassLoader);
         try {
             File WEBINFFolder = new File(docBase, "WEB-INF");

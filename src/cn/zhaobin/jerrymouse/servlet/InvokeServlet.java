@@ -4,7 +4,6 @@ import cn.hutool.core.util.ReflectUtil;
 import cn.zhaobin.jerrymouse.catalina.Context;
 import cn.zhaobin.jerrymouse.http.Request;
 import cn.zhaobin.jerrymouse.http.Response;
-import cn.zhaobin.jerrymouse.util.Constant;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -29,7 +28,7 @@ public class InvokeServlet extends HttpServlet {
         String uri = request.getUri();
 
         try {
-            Class<?> servletClass = context.getWebappClassLoader().loadClass(context.getServletClassName(uri));
+            Class<?> servletClass = context.getWebAppClassLoader().loadClass(context.getServletClassName(uri));
             System.out.println("servletClass:" + servletClass);
             System.out.println("servletClass' classLoader:" + servletClass.getClassLoader());
             ReflectUtil.invoke(context.getSingletonServlet(servletClass), "service", request, response);
