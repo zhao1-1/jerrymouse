@@ -5,14 +5,12 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.zhaobin.jerrymouse.util.CommonUtils;
+import cn.zhaobin.jerrymouse.util.Constant;
 import cn.zhaobin.jerrymouse.util.StatusCodeEnum;
 import cn.zhaobin.jerrymouse.util.parsexml.WebXMLUtils;
 
 import javax.servlet.http.Cookie;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -60,8 +58,6 @@ public class Response extends BaseResponse{
     @Override
     public void addCookie(Cookie cookie) { this.cookies.add(cookie); }
 
-    public String getRedirectPath() { return this.redirectPath; }
-
     @Override
     public void sendRedirect(String redirect) throws IOException { this.redirectPath = redirect; }
 
@@ -92,7 +88,7 @@ public class Response extends BaseResponse{
                 .format(DateUtil.offset(new Date(), DateField.MINUTE, maxAge));
     }
 
-    public byte[] getOutputBytes() throws Exception {
+    private byte[] getOutputBytes() throws Exception {
         return CommonUtils.glue2bytes(getHead(), getBody());
     }
 
@@ -103,15 +99,13 @@ public class Response extends BaseResponse{
     @Override
     public PrintWriter getWriter() { return this.writer; }
 
-    public byte[] getBody() {
+    private byte[] getBody() {
         if (null == this.body) {
             String content = stringWriter.toString();
             return content.getBytes(StandardCharsets.UTF_8);
         }
         return this.body;
     }
-
-    private void setBody(byte[] body) { this.body = body; }
 
     @Override
     public void setStatus(int status) { this.status = status; }
@@ -154,7 +148,54 @@ public class Response extends BaseResponse{
     }
 
     private void assembleResponseBody() {
-        this.setBody(FileUtil.readBytes(this.sourceFile));
+        this.body = FileUtil.readBytes(this.sourceFile);
     }
 
+    public void handle() throws Exception {
+        switch (StatusCodeEnum.valueOf(this.getStatus())) {
+            case STATUS_CODE_200:
+                handle200();
+                break;
+            case STATUS_CODE_404:
+                handle404();
+                break;
+            case STATUS_CODE_302:
+                handle302();
+                break;
+            default:
+                throw new RuntimeException("undefined status code!");
+        }
+    }
+
+    private void handle200() throws Exception {
+        this.socket.getOutputStream().write(this.getOutputBytes());
+    }
+
+    private void handle404() throws IOException {
+        byte[] responseHead = STATUS_CODE_404.getHead().getBytes(StandardCharsets.UTF_8);
+        byte[] responseBody = StrUtil.format(STATUS_CODE_404.getContent()).getBytes(StandardCharsets.UTF_8);
+
+        OutputStream os = this.socket.getOutputStream();
+        os.write(CommonUtils.glue2bytes(responseHead, responseBody));
+    }
+
+    private void handle302() throws IOException {
+        this.socket.getOutputStream().write(StrUtil.format(STATUS_CODE_302.getHead(), this.redirectPath).getBytes(StandardCharsets.UTF_8));
+    }
+
+    public void handle500(Throwable e) {
+        try {
+            byte[] responseHead = STATUS_CODE_500.getHead().getBytes(StandardCharsets.UTF_8);
+            byte[] responseBody = StrUtil.format(Constant.TEXT_FORMAT_500,
+                    CommonUtils.convertExceptionMsg(e),
+                    e.toString(),
+                    CommonUtils.convertStackTraceMsg(e))
+                    .getBytes(StandardCharsets.UTF_8);
+
+            OutputStream os = this.socket.getOutputStream();
+            os.write(CommonUtils.glue2bytes(responseHead, responseBody));
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+    }
 }
