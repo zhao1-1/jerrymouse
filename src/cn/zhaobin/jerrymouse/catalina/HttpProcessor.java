@@ -24,16 +24,17 @@ public class HttpProcessor {
     private final Request request;
     private final Response response;
 
-    public HttpProcessor(Socket socket, Request request, Response response) {
-        this.socket = socket;
+    public HttpProcessor(Request request, Response response) {
         this.request = request;
         this.response = response;
+        this.socket = request.getSocket();
     }
 
     public void execute() {
         try {
             prepareSession(this.request, this.response);
             executeServlet();
+            if (request.isForwarded()) return;
             handle();
         } catch (Exception e) {
             LogFactory.get().error(e);

@@ -254,6 +254,12 @@ public class TestJerryMouse {
         containAssert(http_servlet, "HTTP/1.1 302 Found\nLocation: /hello");
     }
 
+    @Test
+    public void testServerJump() {
+        String http_servlet = getContentStringViaMiniBrowser("/demo/serverJump");
+        containAssert(http_servlet, "Hello JerryMouse from HelloServlet@demoWeb");
+    }
+
 
     private String getContentStringViaMiniBrowser(String uri) { return MiniBrowser.getContentString(getTestURL(uri)); }
 

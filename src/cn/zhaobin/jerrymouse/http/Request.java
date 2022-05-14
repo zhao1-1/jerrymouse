@@ -11,6 +11,7 @@ import cn.zhaobin.jerrymouse.catalina.Service;
 import cn.zhaobin.jerrymouse.util.CommonUtils;
 import cn.zhaobin.jerrymouse.util.Constant;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpSession;
@@ -36,6 +37,8 @@ public class Request extends BaseRequest {
     private Cookie[] cookies;
 
     private HttpSession session;
+
+    private boolean forwarded;
 
     public Request(Socket socket, Service service) throws IOException {
         this.socket = socket;
@@ -158,7 +161,7 @@ public class Request extends BaseRequest {
         return this.service.getEngine().getDefaultHost();
     }
 
-
+    public Socket getSocket() { return socket; }
 
     public String getRequestString(){ return this.requestString; }
 
@@ -166,6 +169,8 @@ public class Request extends BaseRequest {
     public String getMethod() { return this.method; }
 
     public String getUri() { return this.uri; }
+
+    public void setUri(String uri) { this.uri = uri; }
 
     public Context getContext() { return this.context; }
 
@@ -289,4 +294,9 @@ public class Request extends BaseRequest {
     @Override
     public String getServletPath() { return this.uri; }
 
+    public boolean isForwarded() { return forwarded; }
+
+    public void setForwarded(boolean forwarded) { this.forwarded = forwarded; }
+
+    public RequestDispatcher getRequestDispatcher(String uri) { return new ApplicationRequestDispatcher(uri); }
 }

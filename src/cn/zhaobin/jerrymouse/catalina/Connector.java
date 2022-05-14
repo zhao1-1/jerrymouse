@@ -27,9 +27,8 @@ public class Connector implements Runnable{
                 ThreadPoolUtils.run(() -> {
                     try {
                         Request request = new Request(s, this.service);
-                        Response response = new Response();
-                        HttpProcessor httpProcessor = new HttpProcessor(s, request, response);
-                        httpProcessor.execute();
+                        Response response = new Response(s);
+                        new HttpProcessor(request, response).execute();
                     } catch (IOException e) {
                         e.printStackTrace();
                     } finally {

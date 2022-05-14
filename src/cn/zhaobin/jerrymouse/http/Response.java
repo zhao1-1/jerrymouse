@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -24,6 +25,8 @@ import static cn.zhaobin.jerrymouse.util.StatusCodeEnum.*;
 
 public class Response extends BaseResponse{
 
+    private Socket socket;
+
     private StringWriter stringWriter;
     private PrintWriter writer;
     private File sourceFile;
@@ -34,7 +37,8 @@ public class Response extends BaseResponse{
     private List<Cookie> cookies;
     private String redirectPath;
 
-    public Response(){
+    public Response(Socket socket){
+        this.socket = socket;
         this.stringWriter = new StringWriter();
         this.writer = new PrintWriter(stringWriter);
         this.contentType = "text/html";
