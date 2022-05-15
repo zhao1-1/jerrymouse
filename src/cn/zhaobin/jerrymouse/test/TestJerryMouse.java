@@ -24,8 +24,8 @@ import java.util.concurrent.TimeUnit;
 
 public class TestJerryMouse {
 
-    private static int port = Constant.CONNECTOR_1_PORT;
-    private static String ip = Constant.LOCAL_IP;
+    private static final int port = Constant.CONNECTOR_1_PORT;
+    private static final String ip = Constant.LOCAL_IP;
 
     @BeforeClass
     public static void beforeClass() {
@@ -64,17 +64,12 @@ public class TestJerryMouse {
     public void testTimeConsumeHtml() throws InterruptedException {
         ThreadPoolExecutor threadPool = new ThreadPoolExecutor(
                 20, 20, 60, TimeUnit.SECONDS,
-                new LinkedBlockingQueue<Runnable>(10));
+                new LinkedBlockingQueue<>(10));
 
         TimeInterval timeInterval = DateUtil.timer();
 
         for (int i = 0; i < 3; i++) {
-            threadPool.execute(new Runnable() {
-                @Override
-                public void run() {
-                    getContentStringViaMiniBrowser("/timeConsume.html");
-                }
-            });
+            threadPool.execute(() -> getContentStringViaMiniBrowser("/timeConsume.html"));
         }
         threadPool.shutdown();
         threadPool.awaitTermination(1, TimeUnit.HOURS);

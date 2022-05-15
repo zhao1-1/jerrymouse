@@ -23,16 +23,16 @@ import static cn.zhaobin.jerrymouse.util.StatusCodeEnum.*;
 
 public class Response extends BaseResponse{
 
-    private Socket socket;
+    private final Socket socket;
 
-    private StringWriter stringWriter;
-    private PrintWriter writer;
+    private final StringWriter stringWriter;
+    private final PrintWriter writer;
     private File sourceFile;
     private byte[] body;
     private String contentType;
     private int status;
 
-    private List<Cookie> cookies;
+    private final List<Cookie> cookies;
     private String redirectPath;
 
     public Response(Socket socket){
@@ -48,36 +48,32 @@ public class Response extends BaseResponse{
 
     private String getContentTypeHeader() {
         if (null == this.contentType) return "";
-        StringBuffer sb = new StringBuffer();
-        sb.append("\n");
-        sb.append("Content-Type: ");
-        sb.append(getContentType());
-        return sb.toString();
+        return "\n" +
+                "Content-Type: " +
+                getContentType();
     }
 
     @Override
     public void addCookie(Cookie cookie) { this.cookies.add(cookie); }
 
     @Override
-    public void sendRedirect(String redirect) throws IOException { this.redirectPath = redirect; }
+    public void sendRedirect(String redirect) { this.redirectPath = redirect; }
 
     private List<Cookie> getCookies() { return this.cookies; }
 
     private String getCookiesHeader() {
-        if (null == this.cookies)
-            return "";
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (Cookie cookie : getCookies()) {
-            sb.append("\n");
-            sb.append("Set-Cookie: ");
-            sb.append(cookie.getName() + "=" + cookie.getValue() + "; ");
+            sb
+                    .append("\n")
+                    .append("Set-Cookie: ")
+                    .append(cookie.getName())
+                    .append("=").append(cookie.getValue()).append("; ");
             if (-1 != cookie.getMaxAge()) { //-1 mean forever
-                sb.append("Expires=");
-                sb.append(parseCookieExpires(cookie.getMaxAge()));
-                sb.append("; ");
+                sb.append("Expires=").append(parseCookieExpires(cookie.getMaxAge())).append("; ");
             }
             if (null != cookie.getPath()) {
-                sb.append("Path=" + cookie.getPath());
+                sb.append("Path=").append(cookie.getPath());
             }
         }
         return sb.toString();

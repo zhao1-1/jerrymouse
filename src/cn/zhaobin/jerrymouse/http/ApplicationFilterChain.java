@@ -7,8 +7,8 @@ import java.io.IOException;
 import java.util.List;
 
 public class ApplicationFilterChain implements FilterChain {
-    private Filter[] filters;
-    private Servlet servlet;
+    private final Filter[] filters;
+    private final Servlet servlet;
     int pos = 0;
 
     public ApplicationFilterChain(List<Filter> filterList, Servlet servlet){

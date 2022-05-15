@@ -25,9 +25,9 @@ import java.util.*;
 public class Context {
 
     private final Host host;
-    private String path;    // 访问的路径
-    private String docBase; // 对应在文件系统中的绝对位置
-    private ServletContext servletContext;
+    private final String path;    // 访问的路径
+    private final String docBase; // 对应在文件系统中的绝对位置
+    private final ServletContext servletContext;
 
     private File contextWebXmlFile; // 为空，表示不存在，或无效的web.xml文件，也用于判断该Context是否仅仅包含静态文件
     private Document contextWebXmlDocument;
@@ -219,11 +219,7 @@ public class Context {
             String urlPattern = ele.select("url-pattern").text();
             String filterName = ele.select("filter-name").first().text();
 
-            List<String> filterNames = this.url_filterNames.get(urlPattern);
-            if(null == filterNames) {
-                filterNames = new ArrayList<>();
-                this.url_filterNames.put(urlPattern, filterNames);
-            }
+            List<String> filterNames = this.url_filterNames.computeIfAbsent(urlPattern, k -> new ArrayList<>());
             filterNames.add(filterName);
         });
     }
@@ -240,11 +236,7 @@ public class Context {
     private void buildUrl_FilterClassNames() {
         Set<String> urls = this.url_filterNames.keySet();
         for (String url : urls) {
-            List<String> filterNames = this.url_filterNames.get(url);
-            if(null == filterNames) {
-                filterNames = new ArrayList<>();
-                this.url_filterNames.put(url, filterNames);
-            }
+            List<String> filterNames = this.url_filterNames.computeIfAbsent(url, k -> new ArrayList<>());
             for (String filterName : filterNames) {
                 String filterClassName = this.filterName_className.get(filterName);
                 List<String> filterClassNames = this.url_filterClassNames.get(url);
@@ -298,7 +290,7 @@ public class Context {
 
     public synchronized  HttpServlet getSingletonServlet(Class<?> clazz)
             throws InstantiationException, IllegalAccessException, ServletException {
-        if (!this.isValidServletContext()) throw new IllegalAccessException("can not call this method");
+        if (this.isNotValidServletContext()) throw new IllegalAccessException("can not call this method");
         HttpServlet servlet = servletPool.get(clazz);
         if (null == servlet) {
             servlet = (HttpServlet) clazz.newInstance();
@@ -335,7 +327,7 @@ public class Context {
         });
     }
 
-    private boolean isValidServletContext() { return this.contextWebXmlFile.exists(); }
+    private boolean isNotValidServletContext() { return !this.contextWebXmlFile.exists(); }
 
 
 
@@ -345,15 +337,14 @@ public class Context {
     public String getDocBase() { return docBase; }
 
     public String getServletClassName(String uri) {
-        if (!this.isValidServletContext())
+        if (this.isNotValidServletContext())
             return null;
         return url_servletClassName.get(uri);
     }
 
     public boolean servletClassValid(String uri) {
-        if (!this.isValidServletContext()) return false;
-        if (null == this.url_servletClassName.get(uri)) return false;
-        return true;
+        if (this.isNotValidServletContext()) return false;
+        return null != this.url_servletClassName.get(uri);
     }
 
     public WebAppClassLoader getWebAppClassLoader() { return this.webAppClassLoader; }
@@ -368,7 +359,7 @@ public class Context {
     private void destroyServlets() { servletPool.values().forEach(Servlet::destroy); }
 
     public List<Filter> getMatchedFilters(String uri) {
-        if (!this.isValidServletContext())
+        if (this.isNotValidServletContext())
             return Collections.emptyList();
         Set<String> matchedUrl = new HashSet<>();
         url_filterNames.keySet().forEach(ele -> {
@@ -396,8 +387,7 @@ public class Context {
         if(StrUtil.startWith(pattern, "/*.")) {
             String patternExtName = StrUtil.subAfter(pattern, '.', false);
             String uriExtName = StrUtil.subAfter(uri, '.', false);
-            if(StrUtil.equals(patternExtName, uriExtName))
-                return true;
+            return StrUtil.equals(patternExtName, uriExtName);
         }
         // 其他模式就懒得管了
         return false;
@@ -412,4 +402,6 @@ public class Context {
                 servletContextListener.contextDestroyed(event);
         }
     }
+
+    public Set<String> getHostContexts() { return this.host.getContextMap().keySet(); }
 }

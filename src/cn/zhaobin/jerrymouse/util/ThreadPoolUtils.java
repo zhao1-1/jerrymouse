@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 public class ThreadPoolUtils {
 
-    private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(
+    private static final ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(
             20, 100, 60, TimeUnit.SECONDS,
             new LinkedBlockingQueue<>(10));
 

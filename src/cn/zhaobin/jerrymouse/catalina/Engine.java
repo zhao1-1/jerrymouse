@@ -7,7 +7,7 @@ import java.util.List;
 
 public class Engine {
 
-    private Service service;
+    private final Service service;
     private List<Host> hosts;
     private Host defaultHost;
 
@@ -35,8 +35,9 @@ public class Engine {
     }
 
     private void checkDefault() {
-        if (null == this.defaultHost)
-            throw new RuntimeException("the defaultHost" + defaultHost.getName() + "does not exist!");
+        if (null == this.defaultHost) {
+            throw new RuntimeException("the defaultHost does not exist!");
+        }
     }
 
     public Host getDefaultHost() { return this.defaultHost; }

@@ -2,7 +2,6 @@ package cn.zhaobin.jerrymouse.util.parsexml;
 
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.io.FileUtil;
-import cn.zhaobin.jerrymouse.catalina.Connector;
 import cn.zhaobin.jerrymouse.catalina.Context;
 import cn.zhaobin.jerrymouse.catalina.Host;
 import cn.zhaobin.jerrymouse.util.Constant;

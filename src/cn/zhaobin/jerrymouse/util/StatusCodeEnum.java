@@ -7,9 +7,9 @@ public enum StatusCodeEnum {
     STATUS_CODE_404(404, "HTTP/1.1 404 Not Found\nContent-Type: text/html\n\n", Constant.TEXT_FORMAT_404),
     STATUS_CODE_500(500, "HTTP/1.1 500 Internal Server Error\nContent-Type: text/html\n\n", Constant.TEXT_FORMAT_500);
 
-    private int code;
-    private String head;
-    private String content;
+    private final int code;
+    private final String head;
+    private final String content;
 
     StatusCodeEnum(int code, String head, String content) {
         this.code = code;

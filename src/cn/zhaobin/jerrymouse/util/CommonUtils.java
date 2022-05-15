@@ -63,6 +63,4 @@ public class CommonUtils {
             msg = msg.substring(0, 19);
         return msg;
     }
-
-    public static void notExecFunc() {}
 }

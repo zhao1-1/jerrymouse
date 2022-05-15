@@ -20,7 +20,7 @@ public class Server {
         TimeInterval timeInterval = DateUtil.timer();
         logJVM();
         init();
-        LogFactory.get().info("<<<<<<<<<<<<====  SERVER  SUCCESS  STARTUP  ====>>>>>>>>>>>>>");
+        LogFactory.get().info("<<<<<<<<<<<<====  SERVER  SUCCESS  STARTUP  ====>>>>>>>>>>>>> start use: " + timeInterval.intervalMs());
     }
 
     private void init() {

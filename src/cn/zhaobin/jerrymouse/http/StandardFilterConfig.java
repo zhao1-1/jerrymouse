@@ -9,9 +9,9 @@ import java.util.Map;
 
 public class StandardFilterConfig implements FilterConfig {
 
-    private ServletContext servletContext;
+    private final ServletContext servletContext;
     private Map<String, String> initParameters;
-    private String filterName;
+    private final String filterName;
 
     public StandardFilterConfig(ServletContext servletContext, String filterName, Map<String, String> initParameters) {
         this.servletContext = servletContext;

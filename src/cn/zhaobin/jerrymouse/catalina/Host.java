@@ -13,9 +13,9 @@ import java.util.Map;
 
 public class Host {
 
-    private Engine engine;
-    private String name;
-    private Map<String, Context> contextMap;
+    private final Engine engine;
+    private final String name;
+    private final Map<String, Context> contextMap;
 
     public Host(Engine engine, String name) {
         this.engine = engine;
@@ -32,6 +32,7 @@ public class Host {
 
     private void scanWebAppsFolderAndLoadContexts() {
         File[] folders = Constant.WEBAPPS_FOLDER.listFiles();
+        assert folders != null;
         for (File f : folders) {
             if (f.isDirectory())
                 loadContextFromFolder(f);
@@ -87,11 +88,13 @@ public class Host {
     }
 
     private void loadContextsFromServerXML() {
-        ServerXMLUtils.parseAndLoadContexts(this).stream().forEach(
+        ServerXMLUtils.parseAndLoadContexts(this).forEach(
                 (context) -> contextMap.put(context.getPath(), context));
     }
 
     public Context getContext(String path) { return this.contextMap.get(path); }
+
+    public Map<String, Context> getContextMap() { return contextMap; }
 
     public void loadWarDynamic(File warFile) {
         loadContextFromWar(warFile);

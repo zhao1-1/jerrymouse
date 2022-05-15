@@ -9,9 +9,9 @@ import java.util.Map;
 
 public class StandardServletConfig implements ServletConfig {
 
-    private ServletContext servletContext;
+    private final ServletContext servletContext;
     private Map<String, String> initParameters;
-    private String servletName;
+    private final String servletName;
 
     public StandardServletConfig(ServletContext servletContext, String servletName, Map<String, String> initParameters) {
         this.servletContext = servletContext;

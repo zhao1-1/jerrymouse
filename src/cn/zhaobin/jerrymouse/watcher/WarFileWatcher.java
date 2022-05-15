@@ -13,7 +13,7 @@ import cn.zhaobin.jerrymouse.catalina.Host;
 import cn.zhaobin.jerrymouse.util.Constant;
 
 public class WarFileWatcher {
-    private WatchMonitor monitor;
+    private final WatchMonitor monitor;
     public WarFileWatcher(Host host) {
         this.monitor = WatchUtil.createAll(Constant.WEBAPPS_FOLDER, 1, new Watcher() {
             private void dealWith(WatchEvent<?> event, Path currentPath) {

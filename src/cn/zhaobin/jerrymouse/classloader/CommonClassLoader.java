@@ -10,6 +10,7 @@ public class CommonClassLoader extends URLClassLoader {
         super(new URL[] {});
         try {
             File[] jarFiles = new File(new File(System.getProperty("user.dir")), "lib").listFiles();
+            assert jarFiles != null;
             for (File file : jarFiles) {
                 if (file.getName().endsWith("jar")) {
                     URL url = new URL("file:" + file.getAbsolutePath());

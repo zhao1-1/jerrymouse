@@ -31,11 +31,11 @@ public class Request extends BaseRequest {
     private String uri;
     private Context context;
 
-    private Map<String, Object> attributesMap;
+    private final Map<String, Object> attributesMap;
 
     private String queryString;
-    private Map<String, String> headerMap;
-    private Map<String, String[]> parameterMap;
+    private final Map<String, String> headerMap;
+    private final Map<String, String[]> parameterMap;
     private Cookie[] cookies;
 
     private HttpSession session;
@@ -129,20 +129,17 @@ public class Request extends BaseRequest {
             return;
         queryString = URLUtil.decode(queryString);
         String[] parameterValues = queryString.split("&");
-        if (null != parameterValues) {
-            for (String parameterValue : parameterValues) {
-                String[] nameValues = parameterValue.split("=");
-                String name = nameValues[0];
-                String value = nameValues[1];
-                String values[] = parameterMap.get(name);
-                if (null == values) {
-                    values = new String[] { value };
-                    parameterMap.put(name, values);
-                } else {
-                    values = ArrayUtil.append(values, value);
-                    parameterMap.put(name, values);
-                }
+        for (String parameterValue : parameterValues) {
+            String[] nameValues = parameterValue.split("=");
+            String name = nameValues[0];
+            String value = nameValues[1];
+            String[] values = parameterMap.get(name);
+            if (null == values) {
+                values = new String[] { value };
+            } else {
+                values = ArrayUtil.append(values, value);
             }
+            parameterMap.put(name, values);
         }
     }
 
@@ -186,17 +183,17 @@ public class Request extends BaseRequest {
 
     @Override
     public String getParameter(String name) {
-        String values[] = parameterMap.get(name);
+        String[] values = parameterMap.get(name);
         if (null != values && 0 != values.length)
             return values[0];
         return null;
     }
 
     @Override
-    public Map getParameterMap() { return this.parameterMap; }
+    public Map<String, String[]> getParameterMap() { return this.parameterMap; }
 
     @Override
-    public Enumeration getParameterNames() { return Collections.enumeration(parameterMap.keySet()); }
+    public Enumeration<String> getParameterNames() { return Collections.enumeration(parameterMap.keySet()); }
 
     @Override
     public String[] getParameterValues(String name) { return parameterMap.get(name); }
@@ -229,7 +226,7 @@ public class Request extends BaseRequest {
     }
 
     @Override
-    public Enumeration getHeaderNames() { return Collections.enumeration(this.headerMap.keySet()); }
+    public Enumeration<String> getHeaderNames() { return Collections.enumeration(this.headerMap.keySet()); }
 
     @Override
     public int getIntHeader(String name) { return Convert.toInt(this.headerMap.get(name), 0); }

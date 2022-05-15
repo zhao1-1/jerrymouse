@@ -7,8 +7,8 @@ import java.util.*;
 
 public class ApplicationContext extends BaseServletContext{
 
-    private Map<String, Object> attributesMap;
-    private Context context;
+    private final Map<String, Object> attributesMap;
+    private final Context context;
 
     public ApplicationContext(Context context) {
         this.attributesMap = new HashMap<>();

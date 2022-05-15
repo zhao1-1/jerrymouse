@@ -35,13 +35,6 @@ public class HttpProcessor {
         }
     }
 
-    private void executeServlet() throws Exception{
-        if (request.getContext().servletClassValid(request.getRequestURI()))
-            InvokeServlet.getInstance().service(this.request, this.response);
-        else
-            DefaultServlet.getInstance().service(this.request, this.response);
-    }
-
     private void executeServletChain() throws Exception {
         HttpServlet workingServlet;
         if (this.request.getContext().servletClassValid(this.request.getRequestURI()))

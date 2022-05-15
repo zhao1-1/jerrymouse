@@ -10,9 +10,9 @@ import java.util.List;
 
 public class Service {
 
-    private Server server;
-    private String name;
-    private Engine engine;
+    private final Server server;
+    private final String name;
+    private final Engine engine;
     private List<Connector> connectors;
 
     public Service(Server server) {

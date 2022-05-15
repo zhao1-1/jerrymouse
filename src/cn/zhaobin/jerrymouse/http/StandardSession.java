@@ -4,19 +4,18 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionContext;
 
 public class StandardSession implements HttpSession {
-    private Map<String, Object> attributesMap;
+    private final Map<String, Object> attributesMap;
 
-    private String id;
-    private long creationTime;
+    private final String id;
+    private final long creationTime;
     private long lastAccessedTime;
-    private ServletContext servletContext;
+    private final ServletContext servletContext;
     private int maxInactiveInterval;
 
     public StandardSession(String jsessionid, ServletContext servletContext) {
@@ -48,6 +47,7 @@ public class StandardSession implements HttpSession {
 
     public ServletContext getServletContext() { return servletContext; }
 
+    @Deprecated
     public HttpSessionContext getSessionContext() { return null; }
 
     public Object getValue(String arg0) { return null; }
