@@ -11,7 +11,6 @@ import cn.zhaobin.jerrymouse.exception.WebConfigDuplicatedException;
 import cn.zhaobin.jerrymouse.http.ApplicationContext;
 import cn.zhaobin.jerrymouse.http.StandardFilterConfig;
 import cn.zhaobin.jerrymouse.http.StandardServletConfig;
-import cn.zhaobin.jerrymouse.util.CommonUtils;
 import cn.zhaobin.jerrymouse.util.parsexml.ContextXMLUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -30,7 +29,7 @@ public class Context {
     private String docBase; // 对应在文件系统中的绝对位置
     private ServletContext servletContext;
 
-    private File contextWebXmlFile; // 为空，表示不存在，或无效的web.xml文件
+    private File contextWebXmlFile; // 为空，表示不存在，或无效的web.xml文件，也用于判断该Context是否仅仅包含静态文件
     private Document contextWebXmlDocument;
 
     /*
@@ -38,8 +37,9 @@ public class Context {
     懒加载, 如果该项目（context）不含WEB-INF/web.xml文件，则不创建以下数据结构
     ================================================================
     */
-    private WebAppClassLoader webAppClassLoader;
+    private WebAppClassLoader webAppClassLoader;    // 类加载器
 
+    // servlet配置
     private Map<String, String> url_servletName;
     private Map<String, String> servletName_className;
     private Map<String, String> className_servletName;
@@ -47,14 +47,19 @@ public class Context {
     private Map<String, Map<String, String>> servletClassName_initParams;
     private List<String> loadOnStartupServletClassNames;
 
+    // Filter配置
     private Map<String, List<String>> url_filterNames;
     private Map<String, String> filterName_className;
     private Map<String, String> className_filterName;
     private Map<String, List<String>> url_filterClassNames;
     private Map<String, Map<String, String>> filterClassName_initParams;
 
+    // 单例（Servlet、Filter）
     private Map<Class<?>, HttpServlet> servletPool;
     private Map<String, Filter> filterPool;
+
+    // Listener配置
+    private List<ServletContextListener> listenerPool;
 
     public Context(Host host, String path, String docBase) {
         this.host = host;
@@ -78,6 +83,7 @@ public class Context {
             return;
         }
         init();
+        fireEvent("init");
         LogFactory.get().info("Deployment of web application directory {} has finished in {} ms",this.docBase,timeInterval.intervalMs());
     }
 
@@ -113,6 +119,10 @@ public class Context {
         loadFilterSource();
         parseWebXmlFilter();
         handleLoadOnFilter();
+
+        // init listener
+        loadListenerSource();
+        parseListenerMappingAndLoadOn();
     }
 
 
@@ -139,6 +149,9 @@ public class Context {
         this.url_filterClassNames = new HashMap<>();
 
         this.filterClassName_initParams = new HashMap<>();
+    }
+    private void loadListenerSource() {
+        this.listenerPool = new ArrayList<>();
     }
 
     private void parseWebXmlServlet() {
@@ -311,6 +324,17 @@ public class Context {
         return filter;
     }
 
+    private void parseListenerMappingAndLoadOn() {
+        this.contextWebXmlDocument.select("listener").forEach(ele -> {
+            try {
+                this.listenerPool.add((ServletContextListener) this.getWebAppClassLoader().loadClass(ele.text()).newInstance());
+            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
     private boolean isValidServletContext() { return this.contextWebXmlFile.exists(); }
 
 
@@ -339,6 +363,7 @@ public class Context {
     public void stop() {
         webAppClassLoader.stop();
         destroyServlets();
+        fireEvent("destroy");
     }
     private void destroyServlets() { servletPool.values().forEach(Servlet::destroy); }
 
@@ -376,5 +401,15 @@ public class Context {
         }
         // 其他模式就懒得管了
         return false;
+    }
+
+    private void fireEvent(String type) {
+        ServletContextEvent event = new ServletContextEvent(this.servletContext);
+        for (ServletContextListener servletContextListener : this.listenerPool) {
+            if("init".equals(type))
+                servletContextListener.contextInitialized(event);
+            if("destroy".equals(type))
+                servletContextListener.contextDestroyed(event);
+        }
     }
 }
