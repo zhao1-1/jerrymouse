@@ -64,4 +64,5 @@ public class CommonUtils {
         return msg;
     }
 
+    public static void notExecFunc() {}
 }

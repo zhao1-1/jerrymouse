@@ -21,7 +21,6 @@ public class WebAppClassLoader extends URLClassLoader {
                 this.addURL(new URL("file:" + jarFile.getAbsolutePath()));
             }
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
@@ -30,7 +29,6 @@ public class WebAppClassLoader extends URLClassLoader {
         try {
             close();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }

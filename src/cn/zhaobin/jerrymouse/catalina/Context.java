@@ -11,6 +11,7 @@ import cn.zhaobin.jerrymouse.exception.WebConfigDuplicatedException;
 import cn.zhaobin.jerrymouse.http.ApplicationContext;
 import cn.zhaobin.jerrymouse.http.StandardFilterConfig;
 import cn.zhaobin.jerrymouse.http.StandardServletConfig;
+import cn.zhaobin.jerrymouse.util.CommonUtils;
 import cn.zhaobin.jerrymouse.util.parsexml.ContextXMLUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -76,9 +77,7 @@ public class Context {
             this.contextWebXmlFile = null;
             return;
         }
-        this.webAppClassLoader = new WebAppClassLoader(docBase, Thread.currentThread().getContextClassLoader());
-        initServlet();
-        initFilter();
+        init();
         LogFactory.get().info("Deployment of web application directory {} has finished in {} ms",this.docBase,timeInterval.intervalMs());
     }
 
@@ -101,18 +100,23 @@ public class Context {
         }
     }
 
+    private void init() {
+        // create classLoader
+        this.webAppClassLoader = new WebAppClassLoader(docBase, Thread.currentThread().getContextClassLoader());
 
-
-    private void initServlet() {
+        // init servlet
         loadServletSource();
         parseWebXmlServlet();
         handleLoadOnServlet();
-    }
-    private void initFilter() {
+
+        // init filter
         loadFilterSource();
         parseWebXmlFilter();
         handleLoadOnFilter();
     }
+
+
+
 
     private void loadServletSource() {
         this.servletPool = new HashMap<>();
@@ -281,7 +285,7 @@ public class Context {
 
     public synchronized  HttpServlet getSingletonServlet(Class<?> clazz)
             throws InstantiationException, IllegalAccessException, ServletException {
-        if (!this.contextWebXmlFile.exists()) throw new IllegalAccessException("can not call this method");
+        if (!this.isValidServletContext()) throw new IllegalAccessException("can not call this method");
         HttpServlet servlet = servletPool.get(clazz);
         if (null == servlet) {
             servlet = (HttpServlet) clazz.newInstance();
@@ -307,18 +311,23 @@ public class Context {
         return filter;
     }
 
+    private boolean isValidServletContext() { return this.contextWebXmlFile.exists(); }
+
+
+
+
     public String getPath() { return path; }
 
     public String getDocBase() { return docBase; }
 
     public String getServletClassName(String uri) {
-        if (null != this.url_servletClassName)
-            return url_servletClassName.get(uri);
-        return null;
+        if (!this.isValidServletContext())
+            return null;
+        return url_servletClassName.get(uri);
     }
 
     public boolean servletClassValid(String uri) {
-        if (!this.contextWebXmlFile.exists()) return false;
+        if (!this.isValidServletContext()) return false;
         if (null == this.url_servletClassName.get(uri)) return false;
         return true;
     }
@@ -331,6 +340,41 @@ public class Context {
         webAppClassLoader.stop();
         destroyServlets();
     }
-
     private void destroyServlets() { servletPool.values().forEach(Servlet::destroy); }
+
+    public List<Filter> getMatchedFilters(String uri) {
+        if (!this.isValidServletContext())
+            return Collections.emptyList();
+        Set<String> matchedUrl = new HashSet<>();
+        url_filterNames.keySet().forEach(ele -> {
+            if(match(ele, uri)) {
+                matchedUrl.add(ele);
+            }
+        });
+
+        Set<String> matchedFilterClassNames = new HashSet<>();
+        matchedUrl.forEach(ele -> matchedFilterClassNames.addAll(this.url_filterClassNames.get(ele)));
+
+        List<Filter> matchedFilters = new ArrayList<>();
+        matchedFilterClassNames.forEach(ele -> matchedFilters.add(this.filterPool.get(ele)));
+
+        return matchedFilters;
+    }
+    private boolean match(String pattern, String uri) {
+        // 完全匹配
+        if(StrUtil.equals(pattern, uri))
+            return true;
+        // /* 模式
+        if(StrUtil.equals(pattern, "/*"))
+            return true;
+        // 后缀名 /*.jsp
+        if(StrUtil.startWith(pattern, "/*.")) {
+            String patternExtName = StrUtil.subAfter(pattern, '.', false);
+            String uriExtName = StrUtil.subAfter(uri, '.', false);
+            if(StrUtil.equals(patternExtName, uriExtName))
+                return true;
+        }
+        // 其他模式就懒得管了
+        return false;
+    }
 }

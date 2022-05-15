@@ -29,7 +29,7 @@ public class DefaultServlet extends HttpServlet {
         Request request = (Request) req;
         Response response = (Response) resp;
 
-        String requestURI = request.getUri();
+        String requestURI = request.getRequestURI();
         Context context = request.getContext();
 
         if("/500.html".equals(requestURI)){

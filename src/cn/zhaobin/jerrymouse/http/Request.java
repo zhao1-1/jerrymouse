@@ -171,7 +171,8 @@ public class Request extends BaseRequest {
     @Override
     public String getMethod() { return this.method; }
 
-    public String getUri() { return this.uri; }
+    @Override
+    public String getRequestURI() { return this.uri; }
 
     public void setUri(String uri) { this.uri = uri; }
 
@@ -271,9 +272,6 @@ public class Request extends BaseRequest {
 
     @Override
     public String getContextPath() { return this.context.getPath(); }
-
-    @Override
-    public String getRequestURI() { return this.uri; }
 
     @Override
     public StringBuffer getRequestURL() {

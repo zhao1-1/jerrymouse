@@ -25,7 +25,7 @@ public class InvokeServlet extends HttpServlet {
         Response response = (Response) resp;
 
         Context context = request.getContext();
-        String uri = request.getUri();
+        String uri = request.getRequestURI();
 
         try {
             Class<?> servletClass = context.getWebAppClassLoader().loadClass(context.getServletClassName(uri));
